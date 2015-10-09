@@ -1,0 +1,6 @@
+mysqluser=root
+mysqlpassword=root
+--- remote server with db's ---
+remoteServerUser=user
+remoteServerhost=example.com
+remoteServerFolder=~

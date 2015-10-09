@@ -1,0 +1,12 @@
+.bash_history
+.composer
+.gitconfig
+.mysql_history
+.ssh
+.vim
+.viminfo
+.vimrc
+*swp
+*.sql
+*.tar.gz
+setup_files/mysqlDetails
