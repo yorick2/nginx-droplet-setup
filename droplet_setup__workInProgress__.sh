@@ -1,12 +1,12 @@
 #!/bin/bash
 
-. setup_files/settings;
+./setup_files/settings;
 
 echo ;
 echo 'please type a droplet url';
 read url ;
 
-echo 
+echo  ;
 echo 'Import a git repo? [y/n]';
 read importgit ;
 if [ "$importgit" != "y" ] && [ "$importgit" != "n" ]  ; then
