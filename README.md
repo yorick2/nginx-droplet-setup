@@ -7,8 +7,9 @@
 
 #### installation
 
-copy setup_files/mysqlDetails.example to setup_files/mysqlDetails
-update the details in the new file
+copy setup_files/mysqlDetails.example to setup_files/mysqlDetails.
+change the permissions to allow it to be run.
+update the details in the new file.
 
 
 

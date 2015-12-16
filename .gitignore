@@ -10,3 +10,4 @@
 *.sql
 *.tar.gz
 setup_files/mysqlDetails
+setup_files/settings
