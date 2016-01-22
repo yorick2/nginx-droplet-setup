@@ -1,33 +1,24 @@
-ask_question(){
+function test(){
+    local i;     # make not usable outside function
+    question=${1};
+    #
+    name=$2[@]; # name of the array
+    allowedOptions=("${!name}"); # the array content
+    #
     loop=true;
-    varName="${1}"
-    question="${2}";
-   	shift;
-   	shift;
-    allowedOptions=("${@}");
-    echo $allowedOptions;
     while [ "$loop" == true ]; do 
-		echo $question;
-		read $varName;
-		for i in "${allowedOptions[@]}"; do
-		    if [ "$i" == "$varName" ] ; then
-		        echo "Found";
-		    fi
-		done
+      echo question;
+      read varName;
+      for i in "${allowedOptions[@]}"; do
+          if [ "$i" == "$varName" ] ; then
+              returned="$varName";
+              loop=false;
+          fi
+      done
     done
 }
-
-echo 'askmy q';
-array=('y' 'n');
-ask_question test "hit key" ${array[@]} ;
-echo $test ;
-
-
-# a='y';
-# array=('y' 'n');
-# for i in "${array[@]}"; do
-# 	#local i;
-# 		    if [ "$i" == "$a" ] ; then
-# 		        echo "Found";
-# 		    fi
-# 		done
+allowed=('y' 'n');
+test "my question" allowed ;
+echo "returned = ";
+echo $returned;
+echo $i;
