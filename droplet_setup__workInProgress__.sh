@@ -1,21 +1,22 @@
 #!/bin/bash
 
-./setup_files/settings;
+. setup_files/settings; # dont change this line, its required for loading settings
+
+if [  -z ${mysqluser} ] && [ -z ${mysqlpassword} ] ; then
+	echo 'mysql user or password not found. this may be that the settings file is missing or dosnt have execute permissions';
+	exit ;
+fi;
+
+#######################################
+#              questions
+#######################################
+
 
 echo ;
 echo 'please type a droplet url';
 read url ;
 
-echo  ;
-echo 'Import a git repo? [y/n]';
-read importgit ;
-if [ "$importgit" != "y" ] && [ "$importgit" != "n" ]  ; then
-  echo 'not valid answer please try again';
-  exit ;
-fi
-
-
-########### import database ############
+# import database 
 echo 
 echo 'Import a database file [y/n]';
 read importsql ;
@@ -32,15 +33,12 @@ if [ "$importsql" = "y" ]  ; then
 	  echo 'not valid answer please try again';
 	  exit ;
 	fi
+	# fetch from remote server
 	if [ "$dbOnDefaultRemoteServer" = "y" ]  ; then
 		echo 
 		echo 'what is your compressed filename e.g. example.tar.gz'
 		read tarDbFilename
-		echo '-->downloading your compressed database';
-		rsync --progress -ahzx ${remoteServerUser$}@${remoteServerHost}:${remoteServerFolder}/${tarDbFilename}  .
-		echo '-->uncompressing your compressed database';
-		tar -xzvf ${tarDbFilename}
-		dbfile=${tarDbFilename%.tar.gz}.sql
+	# local database file
 	else
 		sqlfile=$(ls *sql) ;
 		echo 
@@ -52,7 +50,7 @@ if [ "$importsql" = "y" ]  ; then
 		  echo 'not valid answer please try again';
 		  exit ;
 		fi
-		if [ "$useSqlFile" == "n"  ] ; then \
+		if [ "$useSqlFile" = "n" ]  ; then 
 		  echo 
 		  echo 'please enter the name of the sql file' ;
 		  read dbfile ;
@@ -62,15 +60,15 @@ if [ "$importsql" = "y" ]  ; then
 	fi;
 	db="${dbfile##*/}";
 	db="${db%.sql}";
-	dbexists=$(mysql -u${mysqluser} -p${mysqlpassword} --batch --skip-column-names -e "SHOW DATABASES LIKE '"${db}"';" | grep "${db}" > /dev/null; echo "$?")
+	echo ${mysqluser};
+	dbexists=$(mysql -u${mysqluser} -p${mysqlpassword} --batch --skip-column-names -e "SHOW DATABASES LIKE '"${db}"';" | grep "${db}" > /dev/null; echo "$?");
 	if [ $dbexists -eq 0 ];then
 		echo "database name already used"
 		exit
 	fi;
 fi;
 
-
-######### is it a dev site #######
+# dev site?
 echo 
 echo 'developement site? [y/n]' ;
 read dev ;
@@ -80,7 +78,7 @@ if [ "$dev" != "y" ] && [ "$dev" != "n" ] ; then
   exit ;
 fi;
 
-###### is it a magento site #####
+# magento site?
 echo 
 echo 'magento site? [y/n]' ;
 read magento ;
@@ -89,6 +87,33 @@ if [ "$magento" != "y" ] && [ "$magento" != "n" ] ; then
   echo 'not valid answer please try again';
   exit ;
 fi;
+
+# in git?
+# git
+echo  ;
+echo 'Import a git repo? [y/n]';
+read importgit ;
+if [ "$importgit" != "y" ] && [ "$importgit" != "n" ]  ; then
+  echo 'not valid answer please try again';
+  exit ;
+fi
+if [ "$importgit" = "y" ]  ; then
+	echo ;
+	echo 'What is the https: git repo url? (it has to be the https one)' ;
+	read giturl;
+	echo ;
+	echo 'does your git repo have a htdocs folder? [y/n]'
+	read gitHtdocs ;
+	echo 'does your repository use composer? [y/n]'
+	read isComposer;
+fi;
+
+
+
+#######################################
+#              actions 
+#######################################
+
 
 ####### make main structure (without web folder) ########
 echo '-->making main folder (without web folder)';
@@ -105,14 +130,6 @@ sudo service nginx restart;
 ######## git ########
 folder="/var/www/${url}/htdocs" ;
 if [ "$importgit" = "y" ]  ; then
-	echo ;
-	echo 'What is the https: git repo url? (it has to be the https one)' ;
-	read giturl;
-	echo ;
-	echo 'does your git repo have a htdocs folder? [y/n]'
-	read gitHtdocs ;
-	echo 'does your repository use composer? [y/n]'
-	read isComposer;
         if [ "$gitHtdocs" = "y" ]  ; then
                 gitFolder=${folder%/htdocs}
         else
@@ -130,7 +147,17 @@ else
 	mkdir -p ${folder} ;
 fi;
 
-######## database manipulation ######
+######## database ######
+if [ "$importsql" = "y" ]  ; then
+	# fetch from remote server
+	if [ "$dbOnDefaultRemoteServer" = "y" ]  ; then
+		echo '-->downloading your compressed database';
+		rsync --progress -ahzx ${remoteServerUser$}@${remoteServerHost}:${remoteServerFolder}/${tarDbFilename}  .
+		echo '-->uncompressing your compressed database';
+		tar -xzvf ${tarDbFilename}
+		dbfile=${tarDbFilename%.tar.gz}.sql
+	fi;
+fi;
 if [ "$importsql" = "y" ]  ; then
 	# import db ;
 	echo '-->creating db';
