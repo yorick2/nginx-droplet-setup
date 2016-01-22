@@ -1,11 +1,30 @@
-function test(){
+# loop until question answer is = to string in array
+# 
+function askQuestionLoop(){
+    # required 
+    if [ -z $2 ]; then
+        echo ;
+        echo '---- arguments missing ---';
+        echo 'askQuestionLoop <<question>> <<name of answers array>>';
+        echo ;
+        echo 'example script:';
+        echo ;
+        echo "# array of allowed answers";
+        echo "allowed=('y' 'n')";
+        echo "# run script";
+        echo 'askQuestionLoop "my question" allowed ';
+        echo ;
+        return;
+    fi;
+    #
     local i;     # make not usable outside function
-    question=${1};
+    local varName;     # make not usable outside function
+    local question=${1};
     #
-    name=$2[@]; # name of the array
-    allowedOptions=("${!name}"); # the array content
+    local name=$2[@]; # name of the array
+    local allowedOptions=("${!name}"); # the array content
     #
-    loop=true;
+    local loop=true;
     while [ "$loop" == true ]; do 
       echo question;
       read varName;
@@ -17,8 +36,12 @@ function test(){
       done
     done
 }
+
+# allowed answers
 allowed=('y' 'n');
-test "my question" allowed ;
+# running script
+askQuestionLoop #"my question" allowed ;
+
+# using the answer
 echo "returned = ";
 echo $returned;
-echo $i;
